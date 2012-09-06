@@ -1,15 +1,7 @@
 require 'redmine'
 require 'dispatcher' unless Rails::VERSION::MAJOR >= 3
 
-if Rails::VERSION::MAJOR >= 3
-  ActionDispatch::Callbacks.to_prepare do
-    require_dependency 'redmine_better_gantt_chart/patches'
-
-    unless ActiveRecord::Base.included_modules.include?(RedmineBetterGanttChart::ActiveRecord::CallbackExtensionsForRails3)
-      ActiveRecord::Base.send(:include, RedmineBetterGanttChart::ActiveRecord::CallbackExtensionsForRails3)
-    end
-  end
-else
+if Rails::VERSION::MAJOR < 3
   Dispatcher.to_prepare :redmine_better_gantt_chart do
     unless ActiveRecord::Base.included_modules.include?(RedmineBetterGanttChart::ActiveRecord::CallbackExtensionsForRails3)
       ActiveRecord::Base.send(:include, RedmineBetterGanttChart::ActiveRecord::CallbackExtensionsForRails2)
@@ -25,7 +17,7 @@ Redmine::Plugin.register :redmine_better_gantt_chart do
   version '0.7.0'
   url 'https://github.com/kulesa/redmine_better_gantt_chart'
   author_url 'http://github.com/kulesa'
-  
+
   requires_redmine :version_or_higher => '1.1.0'
 
   settings(:default => {

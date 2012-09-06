@@ -35,12 +35,10 @@ module RedmineBetterGanttChart
         reschedule_parents
         ordered_changes = prepare_and_sort_changes_list(@changes)
 
-        Issue.with_all_callbacks_disabled do
-          transaction do
-            ordered_changes.each do |the_changes|
-              issue_id, changes = the_changes[1]
-              apply_issue_changes(issue_id, changes)
-            end
+        transaction do
+          ordered_changes.each do |the_changes|
+            issue_id, changes = the_changes[1]
+            apply_issue_changes(issue_id, changes)
           end
         end
       end
@@ -60,7 +58,9 @@ module RedmineBetterGanttChart
         end
         unless changes.empty?
           issue.init_journal(User.current, I18n.t('task_moved_journal_entry'))
-          issue.update_attributes(changes)
+          changes.each do |c|
+            issue.update_column(c.first, c.last)
+          end
           issue.create_journal_entry
         end
       end
